@@ -1,0 +1,45 @@
+<div class="contenedor">
+  <h2 class="titulo">📄 Cotizador de BOM y Oferta</h2>
+
+  <div class="inputs">
+    <div class="input-group">
+      <label for="bom">📂 Subir BOM</label>
+      <input id="bom" type="file" (change)="onFileChange($event, 'bom')" accept=".xlsx" />
+    </div>
+
+    <div class="input-group">
+      <label for="oferta">📂 Subir Oferta</label>
+      <input id="oferta" type="file" (change)="onFileChange($event, 'oferta')" accept=".xlsx" />
+    </div>
+  </div>
+
+  <button class="btn-procesar" (click)="procesarArchivos()">🔄 Procesar Archivos</button>
+
+  <div *ngIf="errorMsg" class="error-msg">
+    ⚠️ {{ errorMsg }}
+  </div>
+
+  <div *ngIf="datosCombinados.length > 0" class="tabla-container" id="tablaCotizacion">
+    <h3>📋 Resultado de la combinación</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Part Number</th>
+          <th *ngFor="let key of getColumnKeys()">
+            {{ key }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let fila of datosCombinados">
+          <td>{{ fila['Part Number'] }}</td>
+          <td *ngFor="let key of getColumnKeys()">{{ fila[key] }}</td>
+        </tr>
+      </tbody>
+ 
+      
+    </table>
+    <button class="btn-exportar" (click)="exportarExcel()">⬇️ Exportar a Excel</button>
+    <button class="btn-imprimir" (click)="imprimirTabla()">🖨️ Imprimir Tabla</button>
+  </div>
+</div>

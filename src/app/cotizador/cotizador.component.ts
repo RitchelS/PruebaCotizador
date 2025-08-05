@@ -72,28 +72,39 @@ export class CotizadorComponent {
     if (this.archivoBOM) lectorBOM.readAsBinaryString(this.archivoBOM);
   }
 
-  private combinarDatos(bom: any[], oferta: any[]): void {
-    const colBOM = Object.keys(bom[0]).find(c => c.toLowerCase().includes('part number'));
-    const colOferta = Object.keys(oferta[0]).find(c => c.toLowerCase().includes('mfr. part'));
+ private combinarDatos(bom: any[], oferta: any[]): void {
+  const colBOM = Object.keys(bom[0]).find(c => c.toLowerCase().includes('part number'));
+  const colOferta = Object.keys(oferta[0]).find(c => c.toLowerCase().includes('mfr. part'));
 
-    if (!colBOM || !colOferta) {
-      this.errorMsg = 'No se encontraron columnas Part Number o Mfr. Part #.';
-      return;
-    }
-
-    this.datosCombinados = bom.map(itemBOM => {
-      const match = oferta.find(itemOferta =>
-        String(itemOferta[colOferta]).trim() === String(itemBOM[colBOM]).trim()
-      );
-      return { ...itemBOM, ...match };
-    }).filter(item => Object.keys(item).length > Object.keys(bom[0]).length);
+  if (!colBOM || !colOferta) {
+    alert('No se encontraron columnas Part Number o Mfr. Part #');
+    return;
   }
+
+  this.datosCombinados = bom.map(itemBOM => {
+    const valorBOM = String(itemBOM[colBOM]).trim();
+
+    // Buscar coincidencia en Oferta
+    const itemOferta = oferta.find(o => String(o[colOferta]).trim() === valorBOM);
+
+    return {
+      'Part Number': valorBOM,
+      ...itemBOM,
+      ...(itemOferta || {}) // Solo agrega oferta si existe
+    };
+  });
+}
+
 
   getColumnKeys(): string[] {
-    if (this.datosCombinados.length === 0) return [];
-    return Object.keys(this.datosCombinados[0])
-      .filter(k => k !== 'Part Number');
-  }
+  if (this.datosCombinados.length === 0) return [];
+  const allKeys = new Set<string>();
+  this.datosCombinados.forEach(row => {
+    Object.keys(row).forEach(k => allKeys.add(k));
+  });
+  return Array.from(allKeys);
+}
+
 
   exportarExcel(): void {
   const workbook = new Workbook();
